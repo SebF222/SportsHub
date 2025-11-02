@@ -23,7 +23,7 @@ class User(Base):
     last_name: Mapped[str] = mapped_column(String(100), nullable=False)
 
 
-    favorites: Mapped[list['FavoriteTeam']] = relationship( back_populates='user', cascade ='all, delete-orphan') 
+    favorite_teams: Mapped[list['FavoriteTeam']] = relationship( back_populates='user', cascade ='all, delete-orphan') 
 
 
 class FavoriteTeam(Base):
@@ -37,4 +37,4 @@ class FavoriteTeam(Base):
     league: Mapped[str] = mapped_column(String(250), nullable=True)
     country: Mapped[str] = mapped_column(String(200), nullable=True)
 
-    user: Mapped['User'] = relationship (back_populates='favoriteTeams')
+    user: Mapped['User'] = relationship (back_populates='favorite_teams')
