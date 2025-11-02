@@ -1,10 +1,39 @@
 from flask import request, jsonify 
 from app.models import User, db
-from .schemas import user_schema, users_schema
+from app.util.auth import encode_token
+from .schemas import user_schema, users_schema, login_schema
 from marshmallow import ValidationError
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import users_bp
 
+
+
+#signing in 
+@users_bp.routes('/login', methods=['POST'])
+def login():
+    try:
+        data = login_schema.load(request.json) #unpacking email and password
+    except ValidationError as e:
+        return jsonify(e.messages), 400 
+    
+    user = None 
+    
+    # if statement for whether the user desides to log in with either their email or username
+    if data.get('email'):
+        user = db.session.querry(User).where(User.email == data['email']).first()#checking if a user belongs to this email
+
+    elif data.get('username'):
+        user = db.session.query(User).where(User.username == data['username']).first()
+
+    if user and check_password_hash(user.password, data['password']): #if we found user with that email, then check that users email against the email that was passed in 
+        token = encode_token(user.id)
+        return jsonify({
+            "message": "Succesfully logged in",
+            "token": token,
+            "user": user_schema.dump(user)
+        }), 200 
+    
+    return jsonify({'error': 'invalid email or password'}), 404
 
 #Register/Create User
 @users_bp.route('', methods=['POST'])
@@ -83,4 +112,3 @@ def delete_user(user_id):
         db.session.commit()
         return jsonify({"message": "successfully deleted user."}), 200
     return jsonify({"error": "invalid user id"}), 404
-#signing in 

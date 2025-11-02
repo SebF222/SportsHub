@@ -8,3 +8,4 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 
 user_schema = UserSchema() #handles just one user 
 users_schema = UserSchema(many=True) #handle a list of users 
+login_schema = UserSchema(exclude=['id', 'email', 'first_name', 'last_name'])
