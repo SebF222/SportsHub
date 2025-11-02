@@ -9,7 +9,7 @@ from . import users_bp
 
 
 #signing in 
-@users_bp.routes('/login', methods=['POST'])
+@users_bp.route('/login', methods=['POST'])
 def login():
     try:
         data = login_schema.load(request.json) #unpacking email and password
@@ -33,7 +33,7 @@ def login():
             "user": user_schema.dump(user)
         }), 200 
     
-    return jsonify({'error': 'invalid email or password'}), 404
+    return jsonify({'error': 'invalid  username or password...(email is currently not working)'}), 404
 
 #Register/Create User
 @users_bp.route('', methods=['POST'])
