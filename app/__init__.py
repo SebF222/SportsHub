@@ -4,6 +4,7 @@ from .models import db
 from .extensions import ma
 from .blueprints.users import users_bp
 from .blueprints.favorites import favorites_bp
+from .blueprints.sports import sports_bp
 
 
 #create the application factory 
@@ -21,5 +22,5 @@ def create_app(config_name):
     #plug in blueprints
     app.register_blueprint(users_bp, url_prefix='/users')
     app.register_blueprint(favorites_bp, url_prefix='/favorites')
-
+    app.register_blueprint(sports_bp, url_prefix='/sports')
     return app

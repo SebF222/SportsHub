@@ -1,6 +1,6 @@
 from flask import request, jsonify 
 from app.models import User, db
-from app.util.auth import encode_token
+from app.util.auth import encode_token, token_required
 from .schemas import user_schema, users_schema, login_schema
 from marshmallow import ValidationError
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -20,10 +20,10 @@ def login():
     
     # if statement for whether the user desides to log in with either their email or username
     if data.get('email'):
-        user = db.session.querry(User).where(User.email == data['email']).first()#checking if a user belongs to this email
+        user = db.session.query(User).filter(User.email == data['email']).first()#checking if a user belongs to this email
 
     elif data.get('username'):
-        user = db.session.query(User).where(User.username == data['username']).first()
+        user = db.session.query(User).filter(User.username == data['username']).first()
 
     if user and check_password_hash(user.password, data['password']): #if we found user with that email, then check that users email against the email that was passed in 
         token = encode_token(user.id)
@@ -33,7 +33,7 @@ def login():
             "user": user_schema.dump(user)
         }), 200 
     
-    return jsonify({'error': 'invalid  username or password...(email is currently not working)'}), 404
+    return jsonify({'error': 'invalid  username/email or password'}), 404
 
 #Register/Create User
 @users_bp.route('', methods=['POST'])
@@ -64,8 +64,10 @@ def create_user():
 
 
 #view profile - token auth eventually
-@users_bp.route('/<int:user_id>', methods=['GET'])
-def get_user(user_id):
+@users_bp.route('', methods=['GET'])
+@token_required
+def get_user():
+    user_id = request.user_id
     user = db.session.get(User, user_id)
     if user:
         return user_schema.jsonify(user), 200
@@ -79,8 +81,10 @@ def get_users():
 
 #update profile 
 
-@users_bp.route('/<int:user_id>', methods=['PUT'])
-def update_user(user_id):
+@users_bp.route('', methods=['PUT'])
+@token_required
+def update_user():
+    user_id = request.user_id #grabbing the user id from the request 
     user = db.session.get(User, user_id)
 
     if not user:
@@ -103,8 +107,10 @@ def update_user(user_id):
     }), 200
 
 #Delete a user
-@users_bp.route('/<int:user_id>', methods=['DELETE'])
-def delete_user(user_id):
+@users_bp.route('', methods=['DELETE'])
+@token_required
+def delete_user():
+    user_id = request.user_id
     user = db.session.get(User, user_id)
 
     if user:

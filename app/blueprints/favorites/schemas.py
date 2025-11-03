@@ -9,3 +9,5 @@ class FavoriteSchema(ma.SQLAlchemyAutoSchema):
 
 favorite_schema = FavoriteSchema() #handles just one user 
 favorites_schema = FavoriteSchema(many=True) #handle a list of users 
+favorite_schema = FavoriteSchema(exclude=['user_id'])
+favorites_schema = FavoriteSchema(exclude=['user_id'])

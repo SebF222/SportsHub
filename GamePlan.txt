@@ -29,3 +29,11 @@
                 - favorite sports teams first one if theres multiple 
 
         on top of all of these pages will have the date and time 
+
+
+
+        need to add
+        │   └── sports/           ⭐ ADD THIS
+│       ├── __init__.py   ⭐ NEW
+│       ├── routes.py     ⭐ NEW
+│       └── api_client.py ⭐ NEW
