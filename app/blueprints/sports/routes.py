@@ -1,175 +1,225 @@
 from flask import request, jsonify
-from app.blueprints.sports.api_client import APISportsClient
+from app.blueprints.sports.basketball_client import BasketballClient
+from app.blueprints.sports.soccer_client import SoccerClient
+from app.blueprints.sports.nfl_client import NFLClient
+from app.blueprints.sports.baseball_client import BaseballClient
 from . import sports_bp
 
 
-# Search for teams by name
-@sports_bp.route('/teams/search', methods=['GET'])
-def search_teams():
-    """
-    Search for teams by name
-    Query params: ?name=<team_name>
-    Example: /sports/teams/search?name=Lakers
-    """
+
+# search basketball teams
+@sports_bp.route('/basketball/teams/search', methods=['GET'])
+def search_basketball_teams():
     name = request.args.get('name')
     
     if not name:
         return jsonify({'error': 'Team name is required'}), 400
     
     try:
-        client = APISportsClient()
+        client = BasketballClient()
         result = client.search_teams(name)
         return jsonify(result), 200
     except Exception as e:
-        return jsonify({'error': 'Failed to fetch teams', 'message': str(e)}), 500
+        return jsonify({'error': str(e)}), 500
 
 
-# Get team details by ID
-@sports_bp.route('/teams/<int:team_id>', methods=['GET'])
-def get_team(team_id):
-    """
-    Get team details
-    Example: /sports/teams/145
-    """
+# get basketball team details
+@sports_bp.route('/basketball/teams/<int:team_id>', methods=['GET'])
+def get_basketball_team(team_id):
     try:
-        client = APISportsClient()
+        client = BasketballClient()
         result = client.get_team(team_id)
         return jsonify(result), 200
     except Exception as e:
-        return jsonify({'error': 'Failed to fetch team', 'message': str(e)}), 500
+        return jsonify({'error': str(e)}), 500
 
 
-# Get team statistics
-@sports_bp.route('/teams/<int:team_id>/stats', methods=['GET'])
-def get_team_stats(team_id):
-    """
-    Get team statistics
-    Query params: ?season=<year>&league=<league_id>
-    Example: /sports/teams/145/stats?season=2024&league=39
-    """
-    season = request.args.get('season')
-    league_id = request.args.get('league')
-    
-    if not season or not league_id:
-        return jsonify({'error': 'Season and league are required'}), 400
-    
+# get live basketball games
+@sports_bp.route('/basketball/games/live', methods=['GET'])
+def get_live_basketball_games():
     try:
-        client = APISportsClient()
-        result = client.get_team_stats(team_id, season, league_id)
-        return jsonify(result), 200
-    except Exception as e:
-        return jsonify({'error': 'Failed to fetch team stats', 'message': str(e)}), 500
-
-
-# Get team schedule/fixtures
-@sports_bp.route('/teams/<int:team_id>/schedule', methods=['GET'])
-def get_team_schedule(team_id):
-    """
-    Get team's schedule/fixtures
-    Query params: ?season=<year>
-    Example: /sports/teams/145/schedule?season=2024
-    """
-    season = request.args.get('season')
-    
-    if not season:
-        return jsonify({'error': 'Season is required'}), 400
-    
-    try:
-        client = APISportsClient()
-        result = client.get_team_fixtures(team_id, season)
-        return jsonify(result), 200
-    except Exception as e:
-        return jsonify({'error': 'Failed to fetch team schedule', 'message': str(e)}), 500
-
-
-# Get live games
-@sports_bp.route('/games/live', methods=['GET'])
-def get_live_games():
-    """
-    Get all live games currently happening
-    Example: /sports/games/live
-    """
-    try:
-        client = APISportsClient()
+        client = BasketballClient()
         result = client.get_live_games()
         return jsonify(result), 200
     except Exception as e:
-        return jsonify({'error': 'Failed to fetch live games', 'message': str(e)}), 500
+        return jsonify({'error': str(e)}), 500
 
 
-# Get games by date
-@sports_bp.route('/games/date', methods=['GET'])
-def get_games_by_date():
-    """
-    Get games by specific date
-    Query params: ?date=<YYYY-MM-DD>
-    Example: /sports/games/date?date=2024-10-29
-    """
+# get basketball games by date
+@sports_bp.route('/basketball/games/date', methods=['GET'])
+def get_basketball_games_by_date():
     date = request.args.get('date')
     
     if not date:
-        return jsonify({'error': 'Date is required (format: YYYY-MM-DD)'}), 400
+        return jsonify({'error': 'Date is required (YYYY-MM-DD)'}), 400
     
     try:
-        client = APISportsClient()
-        result = client.get_fixtures_by_date(date)
+        client = BasketballClient()
+        result = client.get_games_by_date(date)
         return jsonify(result), 200
     except Exception as e:
-        return jsonify({'error': 'Failed to fetch games', 'message': str(e)}), 500
+        return jsonify({'error': str(e)}), 500
 
-
-# Get player statistics
-@sports_bp.route('/players/<int:player_id>', methods=['GET'])
-def get_player_stats(player_id):
-    """
-    Get player statistics
-    Query params: ?season=<year>
-    Example: /sports/players/276/stats?season=2024
-    """
-    season = request.args.get('season')
+# get NFL games by date
+@sports_bp.route('/nfl/games/date', methods=['GET'])
+def get_nfl_games_by_date():
+    date = request.args.get('date')
     
-    if not season:
-        return jsonify({'error': 'Season is required'}), 400
+    if not date:
+        return jsonify({'error': 'Date is required (YYYY-MM-DD)'}), 400
     
     try:
-        client = APISportsClient()
-        result = client.get_player_stats(player_id, season)
+        client = NFLClient()
+        result = client.get_games_by_date(date)
         return jsonify(result), 200
     except Exception as e:
-        return jsonify({'error': 'Failed to fetch player stats', 'message': str(e)}), 500
+        return jsonify({'error': str(e)}), 500
 
 
-# Get all leagues
-@sports_bp.route('/leagues', methods=['GET'])
-def get_leagues():
-    """
-    Get all available leagues
-    Example: /sports/leagues
-    """
-    try:
-        client = APISportsClient()
-        result = client.get_leagues()
-        return jsonify(result), 200
-    except Exception as e:
-        return jsonify({'error': 'Failed to fetch leagues', 'message': str(e)}), 500
-
-
-# Get league standings
-@sports_bp.route('/leagues/<int:league_id>/standings', methods=['GET'])
-def get_standings(league_id):
-    """
-    Get league standings
-    Query params: ?season=<year>
-    Example: /sports/leagues/39/standings?season=2024
-    """
-    season = request.args.get('season')
+# search baseball teams
+@sports_bp.route('/baseball/teams/search', methods=['GET'])
+def search_baseball_teams():
+    name = request.args.get('name')
     
-    if not season:
-        return jsonify({'error': 'Season is required'}), 400
+    if not name:
+        return jsonify({'error': 'Team name is required'}), 400
     
     try:
-        client = APISportsClient()
-        result = client.get_standings(league_id, season)
+        client = BaseballClient()
+        result = client.search_teams(name)
         return jsonify(result), 200
     except Exception as e:
-        return jsonify({'error': 'Failed to fetch standings', 'message': str(e)}), 500
+        return jsonify({'error': str(e)}), 500
+
+
+# get baseball team details
+@sports_bp.route('/baseball/teams/<int:team_id>', methods=['GET'])
+def get_baseball_team(team_id):
+    try:
+        client = BaseballClient()
+        result = client.get_team(team_id)
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# get live baseball games
+@sports_bp.route('/baseball/games/live', methods=['GET'])
+def get_live_baseball_games():
+    try:
+        client = BaseballClient()
+        result = client.get_live_games()
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# get baseball games by date
+@sports_bp.route('/baseball/games/date', methods=['GET'])
+def get_baseball_games_by_date():
+    date = request.args.get('date')
+    
+    if not date:
+        return jsonify({'error': 'Date is required (YYYY-MM-DD)'}), 400
+    
+    try:
+        client = BaseballClient()
+        result = client.get_games_by_date(date)
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# search NFL teams
+@sports_bp.route('/nfl/teams/search', methods=['GET'])
+def search_nfl_teams():
+    name = request.args.get('name')
+    
+    if not name:
+        return jsonify({'error': 'Team name is required'}), 400
+    
+    try:
+        client = NFLClient()
+        result = client.search_teams(name)
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# get NFL team details
+@sports_bp.route('/nfl/teams/<int:team_id>', methods=['GET'])
+def get_nfl_team(team_id):
+    try:
+        client = NFLClient()
+        result = client.get_team(team_id)
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# get live NFL games
+@sports_bp.route('/nfl/games/live', methods=['GET'])
+def get_live_nfl_games():
+    try:
+        client = NFLClient()
+        result = client.get_live_games()
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+
+
+# search soccer teams
+@sports_bp.route('/soccer/teams/search', methods=['GET'])
+def search_soccer_teams():
+    name = request.args.get('name')
+    
+    if not name:
+        return jsonify({'error': 'Team name is required'}), 400
+    
+    try:
+        client = SoccerClient()
+        result = client.search_teams(name)
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# get soccer team details
+@sports_bp.route('/soccer/teams/<int:team_id>', methods=['GET'])
+def get_soccer_team(team_id):
+    try:
+        client = SoccerClient()
+        result = client.get_team(team_id)
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# get live soccer games
+@sports_bp.route('/soccer/games/live', methods=['GET'])
+def get_live_soccer_games():
+    try:
+        client = SoccerClient()
+        result = client.get_live_games()
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# get soccer games by date
+@sports_bp.route('/soccer/games/date', methods=['GET'])
+def get_soccer_games_by_date():
+    date = request.args.get('date')
+    
+    if not date:
+        return jsonify({'error': 'Date is required (YYYY-MM-DD)'}), 400
+    
+    try:
+        client = SoccerClient()
+        result = client.get_games_by_date(date)
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
