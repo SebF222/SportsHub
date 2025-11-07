@@ -5,13 +5,14 @@ from .extensions import ma
 from .blueprints.users import users_bp
 from .blueprints.favorites import favorites_bp
 from .blueprints.sports import sports_bp
-
+from flask_cors import CORS
 
 #create the application factory 
 def create_app(config_name):
     
     #initialize blank app
     app = Flask(__name__)
+    CORS(app)
     #configure the app
     app.config.from_object(f'config.{config_name}')
 

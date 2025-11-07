@@ -1,6 +1,7 @@
 import requests
 from flask import current_app
 
+#AI 
 
 class NFLClient:
     
